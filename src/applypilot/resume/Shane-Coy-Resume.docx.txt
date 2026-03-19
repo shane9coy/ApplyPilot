@@ -1,0 +1,45 @@
+﻿SHANE COY
+Agentic AI Engineer  |  Full-Stack Developer  |  AI Systems Consultant
+Columbus, OH  •  614.357.0434  •  shane@shanc.dev  
+ shanec.dev  •  github.com/shane9coy  •  katana-agent.com  •  quant-pulse.com
+agentic ai engineer llm orchestration multi-agent systems rag retrieval augmented generation vector database embeddings langchain openai anthropic claude gpt-4 gemini mistral fine-tuning prompt engineering autonomous agents ai infrastructure machine learning deep learning nlp python typescript react nextjs fastapi supabase postgresql docker kubernetes ci/cd devops full stack engineer lead engineer senior engineer staff engineer principal engineer ai engineer ml engineer software architect systems design microservices api development websocket streaming etl pipeline data engineering quickbooks api hostaway api financial automation property management crm integration voice agent stt tts real-time inference local llm open source npm developer tools agentic framework mcp model context protocol function calling tool use
+PROFILE
+Full-stack agentic AI engineer and consultant who designs and ships production-grade autonomous systems that eliminate manual work and drive measurable business outcomes. Built Katana Agent, an open-source AI agent framework (npm, agentic SKILLs, multi-agent orchestration). Delivered AI consulting engagements, with most recently saving a small business $25K+ in software costs annually along with 40+ hours of monthly management labor. 10 years of entrepreneurship with P&L ownership, team leadership, and multi-million dollar deal negotiation.
+TECHNICAL SKILLS
+AI & Agentic Systems: Multi-agent orchestration, modern agentic orchestration, MCP, LLM tuning, RAG, vector databases, embeddings, LangChain, prompt engineering, autonomous agents, tool use, function calling, voice agents (STT/TTS/VAD)
+Languages & Frameworks: Python, TypeScript, JavaScript, React, Next.js, FastAPI, Node.js, Pydantic, TensorFlow, PyTorch, Scikit-learn
+Infrastructure & Data: PostgreSQL, Supabase, Firebase, SQLite, ETL pipelines, REST APIs, WebSocket streaming, Docker, CI/CD, Cloudflare (Workers, Pages, R2), QuickBooks API, Hostaway API, OCR pipelines
+Frontend & Tools: Tailwind CSS, Radix UI, Playwright, responsive design, Git, npm publishing, Telegram/WhatsApp/Discord integrations
+AI CONSULTING
+Lead AI Engineer & Consultant2026 – Present
+Airbutler
+Engaged to redesign core business infrastructure for a property management company that had outgrown its tooling stack. Delivered an agentic operations system with custom client interface and automated server-side operations.
+* Centralized all business data into a single Supabase database replacing five disconnected software subscriptions - syncing Hostaway reservations, automated QuickBooks reconciliation, Google Sheets records, receipts via OCR pipeline, and contractor records in real time
+* Built automated accounting reconciliation engine with nightly API sync, discrepancy detection, auto-resolution of minor variances, and escalation workflows - replacing manual bookkeeping process entirely
+* Engineered customer portal with owner dashboards, booking history, invoice access, and live AI chat agent replacing manual email reports and owner phone calls
+* Deployed Auto-Accountant AI agent providing on-demand financial reports, charge explanations, market performance benchmarks, and contractor payment management
+AI Systems Architect & Consultant | [NDA - Client Confidential] 2026
+Engaged to assess and accelerate a 6-person engineering team falling behind on their product launch due to low AI tool adoption and slow feature shipping velocity.
+* Redesigned single monolithic sales agent into a specialized multi-agent system - agents trained on dual RAG vector databases to assist customers at different intake points across the sales pipeline
+* Designed 60-90 day engineering transformation roadmap with hard KPI gates: feature cycle time targeted at ~50% reduction by day 60, AI tool usage scaled to 90%+ across team, every engineer shipping production agent skills within 2 weeks
+* Architected self-improving call pipeline - 3-agent system analyzing transcripts, scoring performance, and generating weekly prompt optimizations with human approval gate and git-based version control
+ENGINEERING PROJECTS
+Creator & Lead Engineer | Katana Agent | katana-agent.com 2025 – Present
+* Architected open-source personal AI agent framework distributed via npm - modular self-writing skill system enabling agents to autonomously create and install new MCP-compatible capabilities
+* Built multi-platform messaging layer (Telegram, WhatsApp, Discord, Slack, Signal) with persistent two-way agent communication and full Google Suite orchestration (Gmail, Calendar, Drive, Sheets)
+* Designed MAGI-3 voice engine with STT/TTS/VAD for real-time self-hosted voice conversations at sub-500ms latency; implemented ClawHub-compatible skill marketplace architecture
+Founder & Lead Engineer | Quant Pulse | quant-pulse.com 2025 – Present
+* Designed multi-agent system using Claude API and MCP to orchestrate specialized agents for SEC filing extraction, financial analysis, and automated report generation - reducing manual analysis time by 95%
+* Built recursive retrieval architecture for nested SEC filings achieving 92% accuracy across 100K+ records; engineered real-time pipeline with sub-500ms latency and 85% reduction in external API calls
+BUSINESS & LEADERSHIP EXPERIENCE
+Realtor & Sales Team Lead | NextHome Experience | Columbus, OH  |  2015 – 2025
+* Led 5-person sales team managing $80K+ annual marketing budget; used CRM analytics to optimize spend and improve conversion year-over-year
+* Achieved top 10% nationwide in transactional volume; negotiated multi-million dollar transactions with high-net-worth clients across complex multi-stakeholder deals
+* Built custom analytics dashboards tracking market pricing trends, inventory cycles, and lead conversion metrics
+EARLIER CAREER
+Co-Founder & Technical Lead | Tweet Flow - Social Media Analytics 2012
+* Co-founded analytics startup at age 20, securing $300K in seed funding; built SQL data pipelines and web analytics dashboards for entertainment and music tour production companies; successfully exited via ownership sale
+EDUCATION & PROFESSIONAL DEVELOPMENT
+Associate of Science  |  Bowling Green State University  |  2011
+AI/ML Professional Development (200+ hrs)  |  2025
+Codecademy ML Engineer Path  •  AI/ML Foundations  •  Deep Learning/TensorFlow  •  ML Engineer (Coursera)  •  LangChain Cert. (Scrimba)
