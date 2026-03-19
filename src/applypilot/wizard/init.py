@@ -301,23 +301,23 @@ def _setup_auto_apply() -> None:
             "Auto-apply won't work until Claude Code is installed."
         )
 
-    # Optional: CapSolver for CAPTCHAs
-    console.print("\n[dim]Some job sites use CAPTCHAs. CapSolver can handle them automatically.[/dim]")
-    if Confirm.ask("Configure CapSolver API key? (optional)", default=False):
-        capsolver_key = Prompt.ask("CapSolver API key")
+    # Optional: 2Captcha for CAPTCHAs
+    console.print("\n[dim]Some job sites use CAPTCHAs. 2Captcha can handle them automatically.[/dim]")
+    if Confirm.ask("Configure 2Captcha API key? (optional)", default=False):
+        twocaptcha_key = Prompt.ask("2Captcha API key")
         # Append to existing .env or create
         if ENV_PATH.exists():
             existing = ENV_PATH.read_text(encoding="utf-8")
-            if "CAPSOLVER_API_KEY" not in existing:
+            if "2CAPTCHA_API_KEY" not in existing:
                 ENV_PATH.write_text(
-                    existing.rstrip() + f"\nCAPSOLVER_API_KEY={capsolver_key}\n",
+                    existing.rstrip() + f"\n2CAPTCHA_API_KEY={twocaptcha_key}\n",
                     encoding="utf-8",
                 )
         else:
-            ENV_PATH.write_text(f"# ApplyPilot configuration\nCAPSOLVER_API_KEY={capsolver_key}\n", encoding="utf-8")
-        console.print("[green]CapSolver key saved.[/green]")
+            ENV_PATH.write_text(f"# ApplyPilot configuration\n2CAPTCHA_API_KEY={twocaptcha_key}\n", encoding="utf-8")
+        console.print("[green]2Captcha key saved.[/green]")
     else:
-        console.print("[dim]Skipped. Add CAPSOLVER_API_KEY to .env later if needed.[/dim]")
+        console.print("[dim]Skipped. Add 2CAPTCHA_API_KEY to .env later if needed.[/dim]")
 
 
 # ---------------------------------------------------------------------------

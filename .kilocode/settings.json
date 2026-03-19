@@ -1,0 +1,242 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(~/.katana/memory/)",
+      "Write(~/.katana/memory/)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
+    ]
+  },
+  "env": {},
+  "mcpServers": {}
+  {
+  "model": "claude-haiku-4-5",
+  "permissions": {
+    "allowedTools": [
+      "Read(~/.katana/memory/)",
+      "Write(~/.katana/memory/)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__gmail__list_messages",
+      "mcp__gmail__get_message",
+      "mcp__gmail__search_messages",
+      "mcp__gmail__send_message",
+      "mcp__gmail__mark_as_read",
+      "mcp__gmail__archive_message",
+      "mcp__calendar__list_events",
+      "mcp__calendar__get_event",
+      "mcp__calendar__create_event",
+      "mcp__calendar__update_event",
+      "mcp__calendar__delete_event",
+      "mcp__calendar__search_events",
+      "mcp__calendar__list_calendars",
+      "mcp__voicemode__converse",
+      "mcp__voicemode__service",
+      "mcp__natal__generate_chart_report",
+      "mcp__natal__create_natal_chart",
+      "mcp__natal__create_transit_chart",
+      "mcp__natal__create_synastry_chart",
+      "mcp__natal__create_solar_return_chart",
+      "mcp__natal__get_chart_data",
+      "mcp__natal__get_chart_statistics",
+      "mcp__voice__voice_listen",
+      "mcp__voice__voice_speak",
+      "mcp__voice__voice_switch",
+      "mcp__voice__voice_status",
+      "mcp__voice__voice_detect_intent",
+      "mcp__playwright__navigate",
+      "mcp__playwright__screenshot",
+      "mcp__playwright__click",
+      "mcp__playwright__fill",
+      "mcp__playwright__content",
+      "mcp__playwright__title",
+      "mcp__playwright__url",
+      "mcp__playwright__wait_for_selector",
+      "mcp__playwright__wait_for_navigation",
+      "mcp__playwright__evaluate",
+      "mcp__playwright__get_links",
+      "mcp__playwright__get_forms",
+      "mcp__playwright__save_state",
+      "mcp__playwright__close",
+      "mcp__telegram__send_message",
+      "mcp__telegram__edit_message",
+      "mcp__telegram__delete_message",
+      "mcp__telegram__get_messages",
+      "mcp__telegram__mark_read",
+      "mcp__telegram__send_photo",
+      "mcp__telegram__send_document",
+      "mcp__telegram__send_audio",
+      "mcp__telegram__send_video",
+      "mcp__telegram__download_media",
+      "mcp__telegram__get_dialogs",
+      "mcp__telegram__get_chat_info",
+      "mcp__telegram__create_group",
+      "mcp__telegram__create_channel",
+      "mcp__telegram__invite_to_chat",
+      "mcp__telegram__get_me",
+      "mcp__telegram__get_contacts",
+      "mcp__telegram__search_contacts",
+      "mcp__rentahuman__search_humans",
+      "mcp__rentahuman__create_bounty",
+      "mcp__rentahuman__list_bounties",
+      "mcp__rentahuman__get_human_profile",
+      "mcp__rentahuman__send_message",
+      "mcp__rentahuman__view_conversations",
+      "mcp__rentahuman__get_bounty_details"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Write(.env*)"
+    ]
+  },
+  "mcpServers": {
+    "gmail": {
+      "command": "node",
+      "args": ["~/mcp-servers/gmail/gmail-mcp-server.js"],
+      "cwd": "~"
+    },
+    "calendar": {
+      "command": "node",
+      "args": ["~/mcp-servers/gmail/calendar-mcp-server.js"],
+      "cwd": "~"
+    },
+    "natal": {
+      "command": "natal-mcp",
+      "args": [],
+      "cwd": "~/natal_mcp"
+    },
+    "weather": {
+      "command": "python",
+      "args": ["-m", "mcp_weather_server"],
+      "cwd": "~/mcp-servers/weather"
+    },
+    "magi3-mcp-voice-server": {
+      "command": "node",
+      "args": ["/Users/sc/mcp-servers/magi3-mcp-voice-server/src/index.js"],
+      "env": {
+        "ELEVENLABS_API_KEY": "${ELEVENLABS_API_KEY}",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    },
+    "playwright-main": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/test@latest",
+        "mcp",
+        "--browser=chromium",
+        "--storage-state=/Users/sc/.playwright-state/main.json",
+        "--slow-mo=150",
+        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/sc/.cache/ms-playwright",
+        "DEBUG": "pw:api"
+      },
+      "transport": "stdio"
+    },
+    "playwright-shopping": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/test@latest",
+        "mcp",
+        "--browser=chromium",
+        "--storage-state=/Users/sc/.playwright-state/shopping.json",
+        "--slow-mo=180",
+        "--viewport-size=1920,1080",
+        "--color-scheme=light"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/sc/.cache/ms-playwright"
+      },
+      "transport": "stdio"
+    },
+    "playwright-travel": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/test@latest",
+        "mcp",
+        "--browser=chromium",
+        "--storage-state=/Users/sc/.playwright-state/travel.json",
+        "--slow-mo=200",
+        "--viewport-size=1920,1080",
+        "--timezone-id=America/New_York"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/sc/.cache/ms-playwright"
+      },
+      "transport": "stdio"
+    },
+    "playwright-reservations": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/test@latest",
+        "mcp",
+        "--browser=chromium",
+        "--storage-state=/Users/sc/.playwright-state/reservations.json",
+        "--slow-mo=150",
+        "--viewport-size=1920,1080"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/sc/.cache/ms-playwright"
+      },
+      "transport": "stdio"
+    },
+    "playwright-enhanced": {
+      "command": "node",
+      "args": ["/Users/sc/.playwright-enhanced/server.js"],
+      "env": {
+        "STORAGE_STATE": "/Users/sc/.playwright-state/enhanced.json",
+        "HEADLESS": "false",
+        "SLOW_MO": "200",
+        "BROWSER": "chromium",
+        "VIEWPORT_WIDTH": "1920",
+        "VIEWPORT_HEIGHT": "1080",
+        "TIMEZONE": "America/New_York",
+        "LOCALE": "en-US",
+        "GEOLOCATION": "{\"latitude\": 41.4488, \"longitude\": -82.7083}"
+      },
+      "transport": "stdio"
+    },
+    "telegram": {
+      "command": "/Users/sc/mcp-servers/telegram-mcp/.venv/bin/python",
+      "args": ["-m", "main"],
+      "cwd": "/Users/sc/mcp-servers/telegram-mcp",
+      "env": {
+        "TELEGRAM_API_ID": "${TELEGRAM_API_ID}",
+        "TELEGRAM_API_HASH": "${TELEGRAM_API_HASH}",
+        "TELEGRAM_SESSION_NAME": "katana_session",
+        "TELEGRAM_BOT_USER_ID": "${TELEGRAM_BOT_USER_ID}",
+        "ENABLE_NOTIFICATIONS": "true",
+        "ENABLE_COMMANDS": "true"
+      }
+    },
+    "rentahuman": {
+      "command": "npx",
+      "args": ["-y", "rentahuman-mcp"],
+      "env": {
+        "RENTAHUMAN_API_KEY": "${RENTAHUMAN_API_KEY}"
+      }
+    }
+  },
+   "voiceMode": {
+    "listen_duration_min": 10,
+    "listen_duration_max": 60,
+    "vad_aggressiveness": 4,
+    "disable_silence_detection": false
+  }
+}
+}

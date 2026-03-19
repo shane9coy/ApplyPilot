@@ -420,13 +420,13 @@ def doctor() -> None:
         results.append(("Node.js (npx)", fail_mark,
                         "Install Node.js 18+ from nodejs.org (needed for auto-apply)"))
 
-    # CapSolver (optional)
-    capsolver = os.environ.get("CAPSOLVER_API_KEY")
-    if capsolver:
-        results.append(("CapSolver API key", ok_mark, "CAPTCHA solving enabled"))
+    # 2Captcha (optional)
+    twocaptcha = os.environ.get("2CAPTCHA_API_KEY")
+    if twocaptcha:
+        results.append(("2Captcha API key", ok_mark, "CAPTCHA solving enabled"))
     else:
-        results.append(("CapSolver API key", "[dim]optional[/dim]",
-                        "Set CAPSOLVER_API_KEY in .env for CAPTCHA solving"))
+        results.append(("2Captcha API key", "[dim]optional[/dim]",
+                        "Set TWOCAPTCHA_API_KEY in .env for CAPTCHA solving"))
 
     # --- Render results ---
     console.print()

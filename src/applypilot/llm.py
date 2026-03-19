@@ -4,6 +4,7 @@ Unified LLM client for ApplyPilot.
 Auto-detects provider from environment:
   GEMINI_API_KEY  -> Google Gemini (default: gemini-2.0-flash)
   OPENAI_API_KEY  -> OpenAI (default: gpt-4o-mini)
+  MINIMAX_API_KEY -> MiniMax M2 via Anthropic-compatible API
   LLM_URL         -> Local llama.cpp / Ollama compatible endpoint
 
 LLM_MODEL env var overrides the model name for any provider.
@@ -29,8 +30,16 @@ def _detect_provider() -> tuple[str, str, str]:
     """
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     openai_key = os.environ.get("OPENAI_API_KEY", "")
+    minimax_key = os.environ.get("MINIMAX_API_KEY", "")
     local_url = os.environ.get("LLM_URL", "")
     model_override = os.environ.get("LLM_MODEL", "")
+
+    if minimax_key:
+        return (
+            os.environ.get("ANTHROPIC_BASE_URL", "https://api.minimax.io/anthropic"),
+            model_override or os.environ.get("MINIMAX_MODEL_ID", "MiniMax-M2.7-highspeed"),
+            minimax_key,
+        )
 
     if gemini_key and not local_url:
         return (
@@ -55,7 +64,7 @@ def _detect_provider() -> tuple[str, str, str]:
 
     raise RuntimeError(
         "No LLM provider configured. "
-        "Set GEMINI_API_KEY, OPENAI_API_KEY, or LLM_URL in your environment."
+        "Set GEMINI_API_KEY, OPENAI_API_KEY, MINIMAX_API_KEY, or LLM_URL in your environment."
     )
 
 
@@ -76,12 +85,15 @@ _GEMINI_NATIVE_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 
 class LLMClient:
-    """Thin LLM client supporting OpenAI-compatible and native Gemini endpoints.
+    """Thin LLM client supporting OpenAI-compatible, native Gemini, and Anthropic endpoints.
 
     For Gemini keys, starts on the OpenAI-compat layer. On a 403 (which
     happens with preview/experimental models not exposed via compat), it
     automatically switches to the native generateContent API and stays there
     for the lifetime of the process.
+
+    For MiniMax (Anthropic-compatible), uses the native /v1/messages endpoint
+    with x-api-key authentication.
     """
 
     def __init__(self, base_url: str, model: str, api_key: str) -> None:
@@ -92,6 +104,7 @@ class LLMClient:
         # True once we've confirmed the native Gemini API works for this model
         self._use_native_gemini: bool = False
         self._is_gemini: bool = base_url.startswith(_GEMINI_COMPAT_BASE)
+        self._is_minimax: bool = "minimax" in base_url.lower()
 
     # -- Native Gemini API --------------------------------------------------
 
@@ -183,6 +196,70 @@ class LLMClient:
         data = resp.json()
         return data["choices"][0]["message"]["content"]
 
+    # -- Anthropic-native API (MiniMax) ---------------------------------------
+
+    def _chat_anthropic(
+        self,
+        messages: list[dict],
+        temperature: float,
+        max_tokens: int,
+    ) -> str:
+        """Call the Anthropic-native /v1/messages endpoint (MiniMax).
+
+        Converts OpenAI-style messages to Anthropic's format:
+        - system -> top-level system parameter
+        - user -> role: user, content: [{type: "text", text: ...}]
+        - assistant -> role: assistant, content: [{type: "text", text: ...}]
+        """
+        system_parts: list[dict] = []
+        contents: list[dict] = []
+
+        for msg in messages:
+            role = msg["role"]
+            text = msg.get("content", "")
+            if role == "system":
+                system_parts.append({"type": "text", "text": text})
+            elif role == "user":
+                contents.append({"role": "user", "content": [{"type": "text", "text": text}]})
+            elif role == "assistant":
+                contents.append({"role": "assistant", "content": [{"type": "text", "text": text}]})
+
+        payload: dict = {
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "messages": contents,
+        }
+        if system_parts:
+            payload["system"] = system_parts[0]["text"] if len(system_parts) == 1 else "\n".join(p["text"] for p in system_parts)
+        if temperature > 0:
+            payload["temperature"] = temperature
+
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": self.api_key,
+            "anthropic-version": "2023-06-01",
+        }
+
+        resp = self._client.post(
+            f"{self.base_url}/v1/messages",
+            json=payload,
+            headers=headers,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        # Anthropic response: content is a list of blocks
+        # Each block has type: "text" or "thinking"
+        text_parts: list[str] = []
+        for block in data.get("content", []):
+            if block.get("type") == "text":
+                text_parts.append(block.get("text", ""))
+
+        if not text_parts:
+            raise RuntimeError(f"Minimax/Anthropic response had no text block: {data}")
+
+        return "\n".join(text_parts)
+
     # -- public API ---------------------------------------------------------
 
     def chat(
@@ -204,6 +281,10 @@ class LLMClient:
                 # Route to native Gemini if we've already confirmed it's needed
                 if self._use_native_gemini:
                     return self._chat_native_gemini(messages, temperature, max_tokens)
+
+                # MiniMax uses Anthropic-native /v1/messages endpoint
+                if self._is_minimax:
+                    return self._chat_anthropic(messages, temperature, max_tokens)
 
                 return self._chat_compat(messages, temperature, max_tokens)
 

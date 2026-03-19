@@ -25,6 +25,7 @@ from rich.live import Live
 
 from applypilot import config
 from applypilot.database import get_connection
+from applypilot.supabase_sync import sync_job_to_supabase
 from applypilot.apply import chrome, dashboard, prompt as prompt_mod
 from applypilot.apply.chrome import (
     launch_chrome, cleanup_worker, kill_all_chrome,
@@ -610,6 +611,7 @@ def worker_loop(worker_id: int = 0, limit: int = 1,
                 continue
             elif result == "applied":
                 mark_result(job["url"], "applied", duration_ms=duration_ms)
+                sync_job_to_supabase(job["url"])
                 applied += 1
                 update_state(worker_id, jobs_applied=applied,
                              jobs_done=applied + failed)
@@ -618,6 +620,7 @@ def worker_loop(worker_id: int = 0, limit: int = 1,
                 mark_result(job["url"], "failed", reason,
                             permanent=_is_permanent_failure(result),
                             duration_ms=duration_ms)
+                sync_job_to_supabase(job["url"])
                 failed += 1
                 update_state(worker_id, jobs_failed=failed,
                              jobs_done=applied + failed)

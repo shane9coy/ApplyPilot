@@ -217,22 +217,22 @@ def _build_hard_rules(profile: dict) -> str:
 def _build_captcha_section() -> str:
     """Build the CAPTCHA detection and solving instructions.
 
-    Reads the CapSolver API key from environment. The CAPTCHA section
+    Reads the 2Captcha API key from environment. The CAPTCHA section
     contains no personal data -- it's the same for every user.
     """
     config.load_env()
-    capsolver_key = os.environ.get("CAPSOLVER_API_KEY", "")
+    twocaptcha_key = os.environ.get("2CAPTCHA_API_KEY", "")
 
     return f"""== CAPTCHA ==
-You solve CAPTCHAs via the CapSolver REST API. No browser extension. You control the entire flow.
-API key: {capsolver_key or 'NOT CONFIGURED — skip to MANUAL FALLBACK for all CAPTCHAs'}
-API base: https://api.capsolver.com
+You solve CAPTCHAs via the 2Captcha REST API. No browser extension. You control the entire flow.
+API key: {twocaptcha_key or 'NOT CONFIGURED — skip to MANUAL FALLBACK for all CAPTCHAs'}
+API base: http://2captcha.com
 
 CRITICAL RULE: When ANY CAPTCHA appears (hCaptcha, reCAPTCHA, Turnstile -- regardless of what it looks like visually), you MUST:
 1. Run CAPTCHA DETECT to get the type and sitekey
-2. Run CAPTCHA SOLVE (createTask -> poll -> inject) with the CapSolver API
-3. ONLY go to MANUAL FALLBACK if CapSolver returns errorId > 0
-Do NOT skip the API call based on what the CAPTCHA looks like. CapSolver solves CAPTCHAs server-side -- it does NOT need to see or interact with images, puzzles, or games. Even "drag the pipe" or "click all traffic lights" hCaptchas are solved via API token, not visually. ALWAYS try the API first.
+2. Run CAPTCHA SOLVE (submit -> poll -> inject) with the 2Captcha API
+3. ONLY go to MANUAL FALLBACK if 2Captcha returns an error
+Do NOT skip the API call based on what the CAPTCHA looks like. 2Captcha solves CAPTCHAs server-side -- it does NOT need to see or interact with images, puzzles, or games. Even "drag the pipe" or "click all traffic lights" hCaptchas are solved via API token, not visually. ALWAYS try the API first.
 
 --- CAPTCHA DETECT ---
 Run this browser_evaluate after every navigation, Apply/Submit/Login click, or when a page feels stuck.
@@ -298,59 +298,51 @@ Result actions:
 - Any other type -> proceed to CAPTCHA SOLVE below.
 
 --- CAPTCHA SOLVE ---
-Three steps: createTask -> poll -> inject. Do each as a separate browser_evaluate call.
+Three steps: submit -> poll -> inject. Do each as a separate browser_evaluate call.
 
-STEP 1 -- CREATE TASK (copy this exactly, fill in the 3 placeholders):
+STEP 1 -- SUBMIT TASK (copy this exactly, fill in the 3 placeholders):
 browser_evaluate function: async () => {{{{
-  const r = await fetch('https://api.capsolver.com/createTask', {{{{
+  const r = await fetch('http://2captcha.com/in.php', {{{{
     method: 'POST',
-    headers: {{{{'Content-Type': 'application/json'}}}},
-    body: JSON.stringify({{{{
-      clientKey: '{capsolver_key}',
-      task: {{{{
-        type: 'TASK_TYPE',
-        websiteURL: 'PAGE_URL',
-        websiteKey: 'SITE_KEY'
-      }}}}
-    }}}})
+    headers: {{{{'Content-Type': 'application/x-www-form-urlencoded'}}}},
+    body: new URLSearchParams({{{{
+      key: '{twocaptcha_key}',
+      method: 'METHOD_TYPE',
+      pageurl: 'PAGE_URL',
+      googlekey: 'SITE_KEY',
+      json: 1
+    }}}}).toString()
   }}}});
-  return await r.json();
+  const j = await r.json();
+  if (j.status === 1) return {{ taskId: j.request }};
+  return {{ error: j.request }};
 }}}}
 
-TASK_TYPE values (use EXACTLY these strings):
-  hcaptcha     -> HCaptchaTaskProxyLess
-  recaptchav2  -> ReCaptchaV2TaskProxyLess
-  recaptchav3  -> ReCaptchaV3TaskProxyLess
-  turnstile    -> AntiTurnstileTaskProxyLess
-  funcaptcha   -> FunCaptchaTaskProxyLess
+METHOD_TYPE values (use EXACTLY these strings):
+  hcaptcha     -> hcaptcha
+  recaptchav2  -> userrecaptcha
+  recaptchav3  -> userrecaptcha (add recaptchav3_action/recaptchav3_min_score in the body if needed)
+  turnstile    -> turnstile
+  funcaptcha   -> funcaptcha
 
 PAGE_URL = the url from detect result. SITE_KEY = the sitekey from detect result.
-For recaptchav3: add "pageAction": "submit" to the task object (or the actual action found in page scripts).
-For turnstile: add "metadata": {{"action": "...", "cdata": "..."}} if those were in detect result.
+For recaptchav3: add recaptchav3_action: "submit" (or actual action) and recaptchav3_min_score: "0.3" to the body.
+For turnstile: use method=turnstile and include turnstileData: {{"action": "...", "cdata": "..."}} if those were in detect result.
 
-Response: {{"errorId": 0, "taskId": "abc123"}} on success.
-If errorId > 0 -> CAPTCHA SOLVE failed. Go to MANUAL FALLBACK.
+Response: {{"status": 1, "request": "abc123"}} on success (taskId in request field).
+If status != 1 -> CAPTCHA SOLVE failed. Go to MANUAL FALLBACK.
 
-STEP 2 -- POLL (replace TASK_ID with the taskId from step 1):
-Loop: browser_wait_for time: 3, then run:
+STEP 2 -- POLL (replace TASK_ID with the request/taskId from step 1):
+Loop: browser_wait_for time: 5, then run:
 browser_evaluate function: async () => {{{{
-  const r = await fetch('https://api.capsolver.com/getTaskResult', {{{{
-    method: 'POST',
-    headers: {{{{'Content-Type': 'application/json'}}}},
-    body: JSON.stringify({{{{
-      clientKey: '{capsolver_key}',
-      taskId: 'TASK_ID'
-    }}}})
-  }}}});
-  return await r.json();
+  const r = await fetch(`http://2captcha.com/res.php?key={twocaptcha_key}&action=get&id=TASK_ID&json=1`);
+  const j = await r.json();
+  return j;
 }}}}
 
-- status "processing" -> wait 3s, poll again. Max 10 polls (30s).
-- status "ready" -> extract token:
-    reCAPTCHA: solution.gRecaptchaResponse
-    hCaptcha:  solution.gRecaptchaResponse
-    Turnstile: solution.token
-- errorId > 0 or 30s timeout -> MANUAL FALLBACK.
+- status "1" (ready) -> extract token: j.request
+- status "0" and j.request == "CAPCHA_NOT_READY" -> wait 5s, poll again. Max 12 polls (60s).
+- error (status 0 with other message) or 60s timeout -> MANUAL FALLBACK.
 
 STEP 3 -- INJECT TOKEN (replace THE_TOKEN with actual token string):
 
@@ -409,8 +401,8 @@ After injecting: browser_wait_for time: 2, then snapshot.
 - Still stuck -> token may have expired (~2 min lifetime). Re-run from STEP 1.
 
 --- MANUAL FALLBACK ---
-You should ONLY be here if CapSolver createTask returned errorId > 0. If you haven't tried CapSolver yet, GO BACK and try it first.
-If CapSolver genuinely failed (errorId > 0):
+You should ONLY be here if 2Captcha returned an error. If you haven't tried 2Captcha yet, GO BACK and try it first.
+If 2Captcha genuinely failed:
 1. Audio challenge: Look for "audio" or "accessibility" button -> click it for an easier challenge.
 2. Text/logic puzzles: Solve them yourself. Think step by step. Common tricks: "All but 9 die" = 9 left. "3 sisters and 4 brothers, how many siblings?" = 7.
 3. Simple text captchas ("What is 3+7?", "Type the word") -> solve them.
